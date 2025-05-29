@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+  background-color: white;
+  color: black;
+}
+
+.dark body {
+  background-color: #1a202c;
+  color: white;
+}
+
+
+.dark .text-green-700 {
+  color: #48bb78; 
+}
+
+.dark .bg-green-600 {
+  background-color: #38a169;
+}
+
+.dark .bg-gray-800 {
+  background-color: #2d3748;
+}
+
+.dark .text-gray-700 {
+  color: #e2e8f0;
+}
+
+.dark .hover\:text-green-600:hover {
+  color: #38a169;
+}
+
+.dark .hover\:text-green-400:hover {
+  color: #48bb78;
+}
+
+.dark .dark\:hover\:bg-gray-700:hover {
+  background-color: #4a5568;
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.custom-popup .leaflet-popup-content {
+  margin: 8px;
+}
+.dark .custom-popup .leaflet-popup-content-wrapper {
+  background-color: #1f2937;
+  color: #f3f4f6;
+}
