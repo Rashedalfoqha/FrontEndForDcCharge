@@ -554,8 +554,8 @@ console.log(process.env.REACT_APP_HOST_URL);
                   {["Facebook", "Twitter", "Instagram", "LinkedIn"].map(
                     (social) => (
                       <a
-                      
-                        
+                        key={social}
+                        href={`https://www.${social.toLowerCase()}.com/evsjo`}
                         className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow hover:shadow-md transition"
                         aria-label={social}
                       >
