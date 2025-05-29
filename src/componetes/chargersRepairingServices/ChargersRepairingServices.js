@@ -137,12 +137,12 @@ const ChargersRepairingServices = () => {
                           whileHover={{ scale: 1.03 }}
                           className="overflow-hidden rounded-xl shadow-lg"
                         >
-                          <img
-                            src={imgUrl}
-                            alt={`Section ${section.id} image ${i + 1}`}
-                            className="w-full h-64 object-cover"
-                            loading="lazy"
-                          />
+                        <img
+  src={imgUrl}
+  alt={`Section ${section.id} item ${i + 1}`}
+  className="w-full h-64 object-cover"
+  loading="lazy"
+/>
                         </motion.div>
                       ))}
                     </div>
