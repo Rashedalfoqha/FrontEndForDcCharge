@@ -195,7 +195,7 @@ console.log(process.env.REACT_APP_HOST_URL);
                     {Hero.ctaText}
                   </motion.a>
                   <motion.a
-                    href="#services"
+                    href={"#services"}
                     className="inline-block border-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 hover:bg-green-600 hover:text-white dark:hover:bg-green-400 dark:hover:text-gray-900 py-3 px-8 rounded-full text-lg transition"
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.98 }}

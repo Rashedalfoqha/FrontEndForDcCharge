@@ -123,7 +123,7 @@ const EvLandingHero = () => {
               transition={{ delay: 0.6, duration: 0.8 }}
             >
               <a
-                href={""}
+                href={window.location.pathname}
                 className="bg-green-700 text-white rounded-xl px-4 py-3 flex items-center justify-center hover:bg-green-800 transition-colors"
               >
                 {/* App Store SVG */}
@@ -137,7 +137,7 @@ const EvLandingHero = () => {
               </a>
 
               <a
-                href={""}
+                href={window.location.pathname}
                 className="bg-green-700 text-white rounded-xl px-4 py-3 flex items-center justify-center hover:bg-green-800 transition-colors"
               >
                 {/* Google Play SVG */}
