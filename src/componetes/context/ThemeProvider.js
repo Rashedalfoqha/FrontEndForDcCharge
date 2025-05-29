@@ -5,8 +5,11 @@ const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
   const storedDarkMode = JSON.parse(localStorage.getItem('darkMode'));
   const [darkMode, setDarkMode] = useState(storedDarkMode ?? false);
+
   const storedLang = localStorage.getItem('lang');
   const [lang, setLang] = useState(storedLang || 'en');
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
@@ -21,7 +24,17 @@ export function ThemeProvider({ children }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ darkMode, setDarkMode, toggleDarkMode, lang, setLang }}>
+    <ThemeContext.Provider
+      value={{
+        darkMode,
+        setDarkMode,
+        toggleDarkMode,
+        lang,
+        setLang,
+        mobileMenuOpen,
+        setMobileMenuOpen, 
+      }}
+    >
       <div className={darkMode ? 'dark' : ''}>{children}</div>
     </ThemeContext.Provider>
   );
