@@ -29,6 +29,7 @@ export default function Navbar() {
 
   const navigate = useNavigate();
 
+  // Desktop hover handlers
   const handleMouseEnter = () => {
     if (hoverTimeout.current) {
       clearTimeout(hoverTimeout.current);
@@ -43,10 +44,16 @@ export default function Navbar() {
     }, 2000);
   };
 
+  // Desktop click on Products & Services navigates to main page and closes menus
   const handleProductsClick = () => {
     navigate('/products-and-services');
     setDropdownOpen(false);
     if (mobileMenuOpen) setMobileMenuOpen(false);
+  };
+
+  // Mobile submenu toggle handler
+  const toggleDropdownMobile = () => {
+    setDropdownOpen((prev) => !prev);
   };
 
   return (
@@ -58,10 +65,11 @@ export default function Navbar() {
         className="container mx-auto px-6 py-4 flex items-center justify-between"
         style={{ direction: isArabic ? 'rtl' : 'ltr' }}
       >
-        <div className="font-extrabold text-2xl tracking-tight text-green-700 dark:text-green-400">
+        <div className="font-extrabold text-2xl tracking-tight text-green-700 dark:text-green-400 cursor-pointer" onClick={() => navigate('/')}>
           EV Solution JO
         </div>
 
+        {/* Desktop Nav */}
         <nav
           className="hidden md:flex items-center gap-8 text-sm font-medium"
           style={{ direction: isArabic ? 'rtl' : 'ltr' }}
@@ -149,6 +157,7 @@ export default function Navbar() {
           </a>
         </nav>
 
+        {/* Right side buttons */}
         <div
           className="flex items-center gap-4"
           style={{ direction: isArabic ? 'rtl' : 'ltr' }}
@@ -170,6 +179,7 @@ export default function Navbar() {
             className="md:hidden p-2"
             onClick={() => {
               setMobileMenuOpen(!mobileMenuOpen);
+              // Close dropdown when toggling mobile menu
               if (dropdownOpen) setDropdownOpen(false);
             }}
             aria-label="Menu"
@@ -179,6 +189,7 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile menu */}
       {mobileMenuOpen && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -196,11 +207,10 @@ export default function Navbar() {
             >
               {lang === 'en' ? 'Home' : 'الرئيسية'}
             </a>
+
+            {/* Mobile: toggle submenu instead of navigating immediately */}
             <button
-              onClick={() => {
-                handleProductsClick();
-                setDropdownOpen(!dropdownOpen);
-              }}
+              onClick={toggleDropdownMobile}
               className="py-2 flex justify-between items-center w-full text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors"
               aria-expanded={dropdownOpen}
             >
@@ -211,6 +221,7 @@ export default function Navbar() {
                 } ${isArabic ? 'ml-0 mr-2' : ''}`}
               />
             </button>
+
             {dropdownOpen && (
               <div className="pl-4 border-l-2 border-green-600 dark:border-green-400">
                 {products.map((product, i) => (
@@ -218,12 +229,29 @@ export default function Navbar() {
                     key={i}
                     href={product.href}
                     className="block py-2 text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setDropdownOpen(false);
+                    }}
                   >
                     {product.name}
                   </a>
                 ))}
+
+                {/* Optional link to main products page */}
+                <a
+                  href="/products-and-services"
+                  className="block py-2 text-green-700 dark:text-green-400 font-semibold hover:underline"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setDropdownOpen(false);
+                  }}
+                >
+                  {lang === 'en' ? 'View All Products & Services' : 'عرض كل المنتجات والخدمات'}
+                </a>
               </div>
             )}
+
             <a
               href="/news"
               className="py-2 text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors"
