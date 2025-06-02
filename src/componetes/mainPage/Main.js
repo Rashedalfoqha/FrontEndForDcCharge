@@ -3,9 +3,13 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import Navbar from "../Navbar";
 import MapSection from "./MapSection";
-import { FiChevronRight } from "react-icons/fi";
+import { FiChevronRight ,FiInstagram } from "react-icons/fi";
 import Footer from "../Footer";
 import { useTheme } from "../context/ThemeProvider";
+import { FaFacebook , FaWhatsapp } from "react-icons/fa";
+import { CiYoutube } from "react-icons/ci";
+import { TiSocialLinkedinCircular } from "react-icons/ti";
+
 
 export default function Main() {
   const {
@@ -546,27 +550,58 @@ console.log(process.env.REACT_APP_HOST_URL);
                 </div>
               </div>
 
-              <div className="mt-8">
-                <h4 className="font-medium dark:text-white mb-4">
-                  {lang === "en" ? "Follow Us" : "تابعنا"}
-                </h4>
-                <div className="flex gap-4">
-                  {["Facebook", "Twitter", "Instagram", "LinkedIn"].map(
-                    (social) => (
-                      <a
-                        key={social}
-                        href={`https://www.${social.toLowerCase()}.com/evsjo`}
-                        className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow hover:shadow-md transition"
-                        aria-label={social}
-                      >
-                        <span className="text-gray-700 dark:text-gray-300">
-                          {social[0]}
-                        </span>
-                      </a>
-                    )
-                  )}
-                </div>
-              </div>
+             <motion.div
+                             className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md"
+                             initial={{ x: -50, opacity: 0 }}
+                             whileInView={{ x: 0, opacity: 1 }}
+                             transition={{ duration: 0.5, delay: 0.1 }}
+                           >
+                             <h4 className="font-medium text-xl dark:text-white mb-4">
+                               {lang === "en" ? "Follow Us" : "تابعنا"}
+                             </h4>
+                             <div className="flex gap-4">
+                               {[
+                                 {
+                                   icon: <FaFacebook size={18} />,
+                                   name: "Facebook",
+                                   href: "https://www.facebook.com/EVSolutionJo",
+                                 },
+                                 {
+                                   icon: <CiYoutube size={18} />,
+                                   name: "YouTube",
+                                   href: "https://www.youtube.com/@EVSolutionJo",
+                                 },
+                                 {
+                                   icon: <FiInstagram size={18} />,
+                                   name: "Instagram",
+                                   href: "https://www.instagram.com/EVSolutionJo",
+                                 },
+                                 {
+                                   icon: <FaWhatsapp size={18} />,
+                                   name: "WhatsApp",
+                                   href: "https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0",
+                                 },{
+                                   icon: <TiSocialLinkedinCircular size={18} />,
+                                   name: "LinkedIn",
+                                   href: "https://www.linkedin.com/company/evsolutionjo",
+                                 }
+                               ].map((social) => (
+                                 <motion.a
+                                   key={social.name}
+                                   href={social.href}
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center shadow hover:shadow-lg transition hover:bg-green-100 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400"
+                                   aria-label={social.name}
+                                   whileHover={{ y: -3 }}
+                                 >
+                                   <span className="text-gray-700 dark:text-gray-300">
+                                     {social.icon}
+                                   </span>
+                                 </motion.a>
+                               ))}
+                             </div>
+                           </motion.div>
             </div>
 
             <form className="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg space-y-6">

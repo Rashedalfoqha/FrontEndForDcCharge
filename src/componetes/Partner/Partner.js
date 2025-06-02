@@ -5,7 +5,6 @@ import Footer from '../Footer';
 import Navbar from '../Navbar';
 import { useTheme } from '../context/ThemeProvider';
 
-
 const Partner = () => {
   const { lang, darkMode, setDarkMode, mobileMenuOpen, setMobileMenuOpen } = useTheme();
   const isArabic = lang === 'ar';
@@ -26,6 +25,8 @@ const Partner = () => {
       .then(([brandsRes, customersRes]) => {
         const brandsArray = brandsRes.data.brands || [];
         const customersArray = customersRes.data.customers || [];
+        console.log(customersArray)
+        
 
         const brandsSection = brandsArray.length > 0 ? {
           heading: brandsArray[0].title?.[lang] || (isArabic ? "علاماتنا التجارية" : "Our Brands"),
@@ -36,7 +37,7 @@ const Partner = () => {
         const customersSection = customersArray.length > 0 ? {
           heading: customersArray[0].title?.[lang] || (isArabic ? "عملاؤنا" : "Our Customers"),
           content: customersArray[0].description?.[lang] || "",
-          image: customersArray[0].image || [],
+          images: customersArray[0].images || [],
         } : null;
 
         if (brandsSection) setBrandsData({ sections: [brandsSection] });
@@ -183,7 +184,7 @@ const Partner = () => {
                 </p>
               </motion.div>
 
-              {section.image && Array.isArray(section.image) && (
+              {section.images && Array.isArray(section.images) && (
                 <motion.div
                   className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8"
                   initial="hidden"
@@ -198,16 +199,24 @@ const Partner = () => {
                     },
                   }}
                 >
-                  {section.image.map((imgSrc, i) => (
+                  {section.images.map((imgObj, i) => (
                     <motion.div
                       key={i}
-                      className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow flex items-center justify-center h-40"
+                      className="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow flex flex-col items-center"
                       initial={{ opacity: 0, scale: 0.9 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.4 }}
                       whileHover={{ y: -5 }}
                     >
-                      <img src={imgSrc} alt={`img-${i}`} className="object-contain h-full w-full" loading="lazy" />
+                      <img
+                        src={imgObj.url}
+                        alt={imgObj.caption?.[lang] || `customer-img-${i}`}
+                        className="object-contain h-40 w-full mb-3"
+                        loading="lazy"
+                      />
+                      <p className="text-center text-gray-700 dark:text-gray-300 text-sm">
+                        {imgObj.caption?.[lang]}
+                      </p>
                     </motion.div>
                   ))}
                 </motion.div>
@@ -215,18 +224,20 @@ const Partner = () => {
             </div>
           </section>
         ))}
-<section className={`py-16 px-6 ${darkMode ? 'bg-gray-800' : 'bg-gray-900'} text-white`}>
-  <div className="max-w-6xl mx-auto">
-    <h2 className="text-3xl md:text-4xl font-bold mb-4">
-      {isArabic ? 'شكر خاص ودعوة' : 'Special Thanks and Invitation'}
-    </h2>
-    <p className="max-w-4xl text-gray-200 leading-relaxed">
-      {isArabic
-        ? 'نقدم شكرنا العميق لجميع شركائنا وعملائنا. لقد كانت ولاؤكم ودعمكم أساسًا لنمونا ونجاحنا. ونحن نتطلع إلى المستقبل بحماس للترحيب بعملاء وشركاء جدد في مجتمعنا. ندعوكم للانضمام إلينا وتجربة الجودة والخدمة الاستثنائية التي نعرف بها. معًا، يمكننا تحقيق أشياء عظيمة ومواصلة بناء علاقات دائمة.'
-        : 'We extend our heartfelt thanks to all our partners and customers. Your loyalty and support have been instrumental in our growth and success. As we look to the future, we are excited to welcome new customers and partners into our community. We invite you to join us and experience the exceptional quality and service that we are known for. Together, we can achieve great things and continue to build lasting relationships.'}
-    </p>
-  </div>
-</section>
+
+        <section className={`py-16 px-6 ${darkMode ? ' dark:bg-gray-900' : 'bg-white'} text-bla`}>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              {isArabic ? 'شكر خاص ودعوة' : 'Special Thanks and Invitation'}
+            </h2>
+            <p className="max-w-4xl text-gray-700 leading-relaxed">
+              {isArabic
+                ? 'نقدم شكرنا العميق لجميع شركائنا وعملائنا. لقد كانت ولاؤكم ودعمكم أساسًا لنمونا ونجاحنا. ونحن نتطلع إلى المستقبل بحماس للترحيب بعملاء وشركاء جدد في مجتمعنا. ندعوكم للانضمام إلينا وتجربة الجودة والخدمة الاستثنائية التي نعرف بها. معًا، يمكننا تحقيق أشياء عظيمة ومواصلة بناء علاقات دائمة.'
+                : 'We extend our heartfelt thanks to all our partners and customers. Your loyalty and support have been instrumental in our growth and success. As we look to the future, we are excited to welcome new customers and partners into our community. We invite you to join us and experience the exceptional quality and service that we are known for. Together, we can achieve great things and continue to build lasting relationships.'}
+            </p>
+          </div>
+        </section>
+
         <section className="py-20 px-6 bg-green-600 dark:bg-green-700 text-white">
           <div className="max-w-4xl mx-auto text-center">
             <motion.h2

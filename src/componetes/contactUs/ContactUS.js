@@ -6,6 +6,7 @@ import { CiYoutube } from "react-icons/ci";
 import { useTheme } from "../context/ThemeProvider";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
+import { TiSocialLinkedinCircular } from "react-icons/ti";
 
 export default function ContactUs() {
   const { lang, darkMode, setDarkMode } = useTheme();
@@ -149,6 +150,11 @@ export default function ContactUs() {
                       icon: <FaWhatsapp size={18} />,
                       name: "WhatsApp",
                       href: "https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0",
+                    },
+                    {
+                      icon: <TiSocialLinkedinCircular size={18} />,
+                      name: "LinkedIn",
+                      href: "https://www.linkedin.com/company/evsolutionjo",
                     },
                   ].map((social) => (
                     <motion.a

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { FiChevronRight, FiPhone, FiMail, FiClock, FiFacebook, FiInstagram } from "react-icons/fi";
+import { FiChevronRight, FiChevronLeft, FiPhone, FiMail, FiClock, FiFacebook, FiInstagram } from "react-icons/fi";
 import { CiYoutube } from "react-icons/ci";
 import { FaWhatsapp } from "react-icons/fa";
 import Navbar from "../Navbar";
@@ -14,6 +14,10 @@ const ProfessionalServices = () => {
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const isArabic = lang === "ar";
+
+  const touchStartXRef = useRef(null);
+  const touchEndXRef = useRef(null);
+
   useEffect(() => {
     setLoading(true);
     axios
@@ -29,12 +33,40 @@ const ProfessionalServices = () => {
 
   useEffect(() => {
     if (data) {
+      const imagesLength = Array.isArray(data.sections[0]?.image) ? data.sections[0].image.length : 1;
       const timer = setInterval(() => {
-        setActiveImageIndex((prev) => (prev + 1) % 3);
+        setActiveImageIndex((prev) => (prev + 1) % imagesLength);
       }, 5000);
       return () => clearInterval(timer);
     }
   }, [data]);
+
+  const handleTouchStart = (e) => {
+    touchStartXRef.current = e.changedTouches[0].screenX;
+  };
+
+  const handleTouchEnd = (e) => {
+    touchEndXRef.current = e.changedTouches[0].screenX;
+    handleSwipeGesture();
+  };
+
+  const handleSwipeGesture = () => {
+    if (touchStartXRef.current !== null && touchEndXRef.current !== null) {
+      const distance = touchStartXRef.current - touchEndXRef.current;
+      const swipeThreshold = 50;
+      if (distance > swipeThreshold) {
+        setActiveImageIndex((prev) => {
+          const imagesLength = Array.isArray(data.sections[0]?.image) ? data.sections[0].image.length : 1;
+          return (prev + 1) % imagesLength;
+        });
+      } else if (distance < -swipeThreshold) {
+        setActiveImageIndex((prev) => {
+          const imagesLength = Array.isArray(data.sections[0]?.image) ? data.sections[0].image.length : 1;
+          return (prev - 1 + imagesLength) % imagesLength;
+        });
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -52,7 +84,7 @@ const ProfessionalServices = () => {
                   repeatType: "reverse",
                   duration: 1.5,
                 }}
-              ></motion.div>
+              />
             ))}
           </div>
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
@@ -71,24 +103,23 @@ const ProfessionalServices = () => {
 
   const { title, sections } = data;
 
+  // CSS Styles for arrows and dots
+  const arrowButtonStyle = "absolute top-1/2 transform -translate-y-1/2 bg-green-600 bg-opacity-70 hover:bg-opacity-90 text-white rounded-full p-3 shadow-lg z-20 transition duration-300 ease-in-out cursor-pointer flex items-center justify-center";
+
+  const dotsContainerStyle = "absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20";
+  const dotStyle = (active) =>
+    `w-4 h-4 rounded-full transition-colors duration-300 cursor-pointer ${
+      active ? "bg-green-600 dark:bg-green-400" : "bg-gray-300 dark:bg-gray-600"
+    }`;
+
   return (
-    <div className={`font-sans ${isArabic ? 'rtl text-right' : 'ltr text-left'} ${darkMode ? 'dark bg-gray-900' : 'bg-white'}`} dir={isArabic ? "rtl" : "ltr"}>
-      <Navbar
-        lang={lang}
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-      />
+    <div className={`font-sans ${isArabic ? "rtl text-right" : "ltr text-left"} ${darkMode ? "dark bg-gray-900" : "bg-white"}`} dir={isArabic ? "rtl" : "ltr"}>
+      <Navbar lang={lang} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} darkMode={darkMode} setDarkMode={setDarkMode} />
 
       <main className="pt-24 bg-gradient-to-b from-white to-green-50 dark:from-gray-900 dark:to-gray-800">
         <section className="relative py-20 px-6 overflow-hidden">
           <div className="max-w-6xl mx-auto relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
               <motion.h1
                 className="text-4xl md:text-5xl font-extrabold text-green-700 dark:text-green-400 mb-6 leading-tight"
                 whileInView={{ opacity: 1, y: 0 }}
@@ -110,58 +141,69 @@ const ProfessionalServices = () => {
                   </motion.p>
                 ))
               ) : (
-                <motion.p
-                  className="text-gray-600 dark:text-gray-300 text-lg mb-4 leading-relaxed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6 }}
-                >
+                <motion.p className="text-gray-600 dark:text-gray-300 text-lg mb-4 leading-relaxed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
                   {sections[0]?.content}
                 </motion.p>
               )}
             </motion.div>
 
-            {sections[0]?.image && (
-              <motion.div
-                className="mt-10"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+            {sections[0]?.image && Array.isArray(sections[0].image) ? (
+              <div
+                className="relative h-96 w-full rounded-3xl shadow-2xl overflow-hidden select-none"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
               >
-                {Array.isArray(sections[0].image) ? (
-                  <div className="relative h-96 w-full rounded-3xl shadow-2xl overflow-hidden">
-                    {sections[0].image.map((img, idx) => (
-                      <motion.img
-                        key={idx}
-                        src={img}
-                        alt={`Professional Service ${idx + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-                        style={{ opacity: idx === activeImageIndex ? 1 : 0 }}
-                        loading="lazy"
-                      />
-                    ))}
-                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-                      {sections[0].image.map((_, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setActiveImageIndex(idx)}
-                          className={`w-3 h-3 rounded-full transition-colors ${idx === activeImageIndex ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-                          aria-label={`Go to slide ${idx + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <img
-                    src={sections[0].image}
-                    alt="Professional Services"
-                    className="rounded-3xl shadow-2xl w-full max-w-4xl mx-auto border-8 border-white dark:border-gray-800"
+                {sections[0].image.map((img, idx) => (
+                  <motion.img
+                    key={idx}
+                    src={img}
+                    alt={`Professional Service ${idx + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                    style={{ opacity: idx === activeImageIndex ? 1 : 0 }}
                     loading="lazy"
+                    draggable={false}
                   />
-                )}
-              </motion.div>
-            )}
+                ))}
+
+                {/* الأسهم */}
+                <button
+                  aria-label="Previous Image"
+                  onClick={() =>
+                    setActiveImageIndex((prev) => (prev - 1 + sections[0].image.length) % sections[0].image.length)
+                  }
+                  className={`${arrowButtonStyle} left-4`}
+                >
+                  <FiChevronLeft size={24} />
+                </button>
+
+                <button
+                  aria-label="Next Image"
+                  onClick={() => setActiveImageIndex((prev) => (prev + 1) % sections[0].image.length)}
+                  className={`${arrowButtonStyle} right-4`}
+                >
+                  <FiChevronRight size={24} />
+                </button>
+
+                {/* النقاط */}
+                <div className={dotsContainerStyle}>
+                  {sections[0].image.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={dotStyle(idx === activeImageIndex)}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : sections[0]?.image ? (
+              <motion.img
+                src={sections[0].image}
+                alt="Professional Services"
+                className="rounded-3xl shadow-2xl w-full max-w-4xl mx-auto border-8 border-white dark:border-gray-800"
+                loading="lazy"
+              />
+            ) : null}
           </div>
         </section>
 
@@ -169,7 +211,7 @@ const ProfessionalServices = () => {
           {sections.slice(1).map((section, index) => (
             <motion.section
               key={index}
-              className={`mb-24 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} flex flex-col lg:items-center gap-12`}
+              className={`mb-24 ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} flex flex-col lg:items-center gap-12`}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -199,20 +241,19 @@ const ProfessionalServices = () => {
                       </motion.p>
                     ))
                   ) : (
-                    <motion.p
-                      className="mb-4 leading-relaxed"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                    >
+                    <motion.p className="mb-4 leading-relaxed" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
                       {section.content}
                     </motion.p>
                   )}
                 </div>
               </div>
 
-              <div className="lg:w-1/2">
-                {section.image && (
+              <div
+                className="lg:w-1/2 select-none"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
+                {section.image && Array.isArray(section.image) ? (
                   <motion.div
                     className="relative overflow-hidden rounded-xl shadow-lg"
                     whileHover={{ scale: 1.02 }}
@@ -221,52 +262,56 @@ const ProfessionalServices = () => {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                   >
-                    {Array.isArray(section.image) ? (
-                      <div className="relative h-96 w-full">
-                        {section.image.map((img, idx) => (
-                          <motion.img
-                            key={idx}
-                            src={img}
-                            alt={`${section.heading} ${idx + 1}`}
-                            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-                            style={{ opacity: idx === activeImageIndex ? 1 : 0 }}
-                            loading="lazy"
-                          />
-                        ))}
-                        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-                          {section.image.map((_, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setActiveImageIndex(idx)}
-                              className={`w-3 h-3 rounded-full transition-colors ${idx === activeImageIndex ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-                              aria-label={`Go to slide ${idx + 1}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <img
-                        src={section.image}
-                        alt={section.heading}
-                        className="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
-                        loading="lazy"
-                      />
-                    )}
+                    <div className="relative h-96 w-full">
+                      {section.image.map((img, idx) => (
+                        <motion.img
+                          key={idx}
+                          src={img}
+                          alt={`${section.heading} ${idx + 1}`}
+                          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                          style={{ opacity: idx === activeImageIndex ? 1 : 0 }}
+                          loading="lazy"
+                          draggable={false}
+                        />
+                      ))}
+
+                      {/* الأسهم */}
+                      <button
+                        aria-label="Previous Image"
+                        onClick={() =>
+                          setActiveImageIndex((prev) => (prev - 1 + section.image.length) % section.image.length)
+                        }
+                        className={`${arrowButtonStyle} left-4`}
+                      >
+                        <FiChevronLeft size={24} />
+                      </button>
+
+                      <button
+                        aria-label="Next Image"
+                        onClick={() => setActiveImageIndex((prev) => (prev + 1) % section.image.length)}
+                        className={`${arrowButtonStyle} right-4`}
+                      >
+                        <FiChevronRight size={24} />
+                      </button>
+                    </div>
                   </motion.div>
-                )}
+                ) : section.image ? (
+                  <img
+                    src={section.image}
+                    alt={section.heading}
+                    className="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
+                    loading="lazy"
+                  />
+                ) : null}
               </div>
             </motion.section>
           ))}
         </div>
 
+        {/* بقية الصفحة تبقى كما هي */}
         <section className="py-20 bg-green-600 dark:bg-green-700 text-white">
           <div className="max-w-4xl mx-auto text-center px-6">
-            <motion.h2
-              className="text-3xl md:text-4xl font-bold mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
+            <motion.h2 className="text-3xl md:text-4xl font-bold mb-8" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
               {isArabic ? "جاهزون لتقديم خدماتنا الاحترافية؟" : "Ready for our professional services?"}
             </motion.h2>
             <motion.p
@@ -276,9 +321,7 @@ const ProfessionalServices = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              {isArabic
-                ? "فريقنا من الخبراء جاهز لمساعدتك في تقديم أفضل الحلول لاحتياجاتك"
-                : "Our team of experts is ready to help you with the best solutions for your needs"}
+              {isArabic ? "فريقنا من الخبراء جاهز لمساعدتك في تقديم أفضل الحلول لاحتياجاتك" : "Our team of experts is ready to help you with the best solutions for your needs"}
             </motion.p>
             <motion.a
               href="/contact"
@@ -369,9 +412,7 @@ const ProfessionalServices = () => {
                   </div>
                   <div>
                     <h4 className="font-medium dark:text-white">{isArabic ? "ساعات العمل" : "Working Hours"}</h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {isArabic ? "الأحد - الخميس: 8 صباحًا - 6 مساءً" : "Sunday - Thursday: 8AM - 6PM"}
-                    </p>
+                    <p className="text-gray-600 dark:text-gray-300">{isArabic ? "الأحد - الخميس: 8 صباحًا - 6 مساءً" : "Sunday - Thursday: 8AM - 6PM"}</p>
                   </div>
                 </motion.div>
               </div>
@@ -397,7 +438,7 @@ const ProfessionalServices = () => {
                     className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-green-600 hover:text-white transition"
                     whileHover={{ y: -3 }}
                   >
-                    <CiYoutube  className="text-gray-700 dark:text-gray-300 hover:text-white" />
+                    <CiYoutube className="text-gray-700 dark:text-gray-300 hover:text-white" />
                   </motion.a>
                   <motion.a
                     href="https://www.instagram.com/EVSolutionJo"
@@ -407,7 +448,7 @@ const ProfessionalServices = () => {
                     <FiInstagram className="text-gray-700 dark:text-gray-300 hover:text-white" />
                   </motion.a>
                   <motion.a
-                    href="https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0" 
+                    href="https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0"
                     className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-green-600 hover:text-white transition"
                     whileHover={{ y: -3 }}
                   >
@@ -424,9 +465,7 @@ const ProfessionalServices = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
-                {isArabic ? "أرسل رسالة" : "Send a Message"}
-              </h3>
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-white">{isArabic ? "أرسل رسالة" : "Send a Message"}</h3>
 
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
