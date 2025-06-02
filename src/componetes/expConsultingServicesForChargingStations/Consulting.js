@@ -1,4 +1,4 @@
-import { FiChevronRight, FiPhone, FiMail, FiClock, FiFacebook, FiInstagram, FiMapPin } from "react-icons/fi";
+import { FiChevronRight, FiPhone, FiMail, FiClock, FiInstagram, FiMapPin } from "react-icons/fi";
 import { CiYoutube } from "react-icons/ci";
 import { FaWhatsapp } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 import { useTheme } from "../context/ThemeProvider";
+import { TiSocialLinkedinCircular } from "react-icons/ti";
+import { FaFacebook } from "react-icons/fa";
+
 
 const Consulting = () => {
   const [data, setData] = useState(null);
