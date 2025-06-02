@@ -65,7 +65,7 @@ const NewsDetailsPage = () => {
   if (!post) return null;
 
   return (
-    <div className="min-h-screen bg-[#0e1525] text-green-400" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-green-400" dir={isArabic ? 'rtl' : 'ltr'}>
       <Navbar />
 
       <main className="pt-24 pb-16 max-w-4xl mx-auto px-6 text-center">
@@ -133,7 +133,7 @@ const NewsDetailsPage = () => {
         </motion.div>
       </main>
 
-      <Footer />
+      <Footer lang={lang}/>
     </div>
   );
 };
