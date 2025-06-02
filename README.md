@@ -1,136 +1,70 @@
-# FrontEndForDcCharge
+# Getting Started with Create React App
 
-A modern frontend application for DC and AC EV charging solutions, offering a rich and responsive user experience for customers seeking home and commercial electric vehicle charging services.
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Directory Structure](#directory-structure)
-- [Getting Started](#getting-started)
-- [Available Scripts](#available-scripts)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
-
----
-
-## Overview
-
-**FrontEndForDcCharge** is a React-based frontend for an electric vehicle (EV) charging service platform. It allows users to:
-
-- Discover and request professional EV charger installation (home & commercial)
-- Explore AC/DC charging options and maintenance services
-- Get support, company info, and news
-- Switch between languages (English/Arabic)
-- Enjoy a responsive, modern, and accessible UI
-
----
-
-## Features
-
-- ⚡ Home & Commercial EV charger installation booking
-- 🛠️ Maintenance, repair, and consulting service pages
-- 🌐 Multi-language support (English & Arabic)
-- 🎨 Light/Dark mode theming
-- 📱 Responsive design for mobile and desktop
-- 💡 Testimonials, company story, and "Why Choose Us" highlights
-- 📍 Interactive map and contact forms
-- 🔗 Social media integration
-
----
-
-## Directory Structure
-
-```
-/
-├── public/                # Static public assets (favicon, manifest, html)
-├── src/
-│   ├── componetes/        # React components (mainPage, about, services, etc.)
-│   ├── App.js             # Main app router and entry
-│   └── index.js           # Entry point
-├── package.json
-├── README.md
-└── ...
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (>=14)
-- npm or yarn
-
-### Installation
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/Rashedalfoqha/FrontEndForDcCharge.git
-   cd FrontEndForDcCharge
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-
-3. Start the development server
-   ```bash
-   npm start
-   # or
-   yarn start
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
 
-- `npm start` — Run the app in development mode.
-- `npm test` — Launch the test runner.
-- `npm run build` — Build the app for production.
-- `npm run eject` — Ejects the Create React App configuration (not reversible).
+In the project directory, you can run:
 
-For more details, see the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### `npm start`
 
----
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-## Project Structure
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-- **src/componetes/mainPage/** — Main landing page, hero section, services, statistics, testimonials, contact form, map.
-- **src/componetes/about/** — Company info and vision.
-- **src/componetes/acCharge/** — AC charging solutions.
-- **src/componetes/dcCharge/** — DC charging solutions.
-- **src/componetes/chargersRepairingServices/** — Maintenance and repair services.
-- **src/componetes/professionalServices/** — Installation and professional services.
-- **src/componetes/context/ThemeProvider.js** — Theme and language context provider.
+### `npm test`
 
----
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-## Contributing
+### `npm run build`
 
-Pull requests and contributions are welcome!  
-For major changes, please open an issue first to discuss what you would like to change.
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
----
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-## License
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+### `npm run eject`
 
----
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-## Contact
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-- Project by [@Rashedalfoqha](https://github.com/Rashedalfoqha)
-- For issues and feature requests, use the [GitHub Issues](https://github.com/Rashedalfoqha/FrontEndForDcCharge/issues) page.
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
----
-*This README was generated with repository code context. Please update to reflect new features or changes.*
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
