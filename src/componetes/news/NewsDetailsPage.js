@@ -123,7 +123,7 @@ const NewsDetailsPage = () => {
 
               <div className="max-w-xl mx-auto text-white/90 text-lg leading-relaxed">
                 {post.body.split('\n').map((paragraph, i) => (
-                  <p key={i} className="mb-6">
+                  <p key={i} className="mb-6 bg-white dark:bg-gray-900">
                     {paragraph}
                   </p>
                 ))}
