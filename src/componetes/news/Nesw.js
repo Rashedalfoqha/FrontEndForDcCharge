@@ -138,9 +138,7 @@ const NewsPage = () => {
               </div>
 
               <div className="flex flex-col flex-grow">
-                <span className="mb-2 px-3 py-1 text-xs rounded self-start bg-green-800 text-green-300 font-semibold">
-                  {post.category}
-                </span>
+               
                 <time dateTime={post.publishedDate} className="text-xs text-green-600 dark:text-green-400 mb-2">
                   {new Date(post.publishedDate).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', {
                     year: 'numeric',
