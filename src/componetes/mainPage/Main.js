@@ -54,6 +54,7 @@ console.log(process.env.REACT_APP_HOST_URL);
   const Hero = getSection("hero");
   const Story = getSection("Our Story & Vision");
   const WhyChoose = getSection("Why Choose Us?");
+  const stats = getSection("stats")
 
   const isArabic = lang === "ar";
 
@@ -137,7 +138,7 @@ console.log(process.env.REACT_APP_HOST_URL);
       </motion.div>
     );
   }
-
+/* 
   const stats = [
     {
       label: lang === "en" ? "Chargers Installed" : "محطة شحن",
@@ -159,7 +160,7 @@ console.log(process.env.REACT_APP_HOST_URL);
       targetValue: 5,
       id: "experience",
     },
-  ];
+  ]; */
 
   return (
     <div
@@ -240,11 +241,11 @@ console.log(process.env.REACT_APP_HOST_URL);
         <section className="py-12 bg-green-600 dark:bg-green-700 text-white">
           <div className="max-w-6xl mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {stats.map((state) => (
+              {stats.features.map((state) => (
                 <AnimatedCounter
                   key={state.id}
-                  targetValue={state.targetValue}
-                  label={state.label}
+                  targetValue={state.value}
+                  label={state.name}
                 />
               ))}
             </div>
