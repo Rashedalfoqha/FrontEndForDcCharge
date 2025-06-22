@@ -3,32 +3,31 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import Navbar from "../Navbar";
 import MapSection from "./MapSection";
-import { FiChevronRight ,FiInstagram } from "react-icons/fi";
+import { FiChevronRight, FiInstagram } from "react-icons/fi";
 import Footer from "../Footer";
 import { useTheme } from "../context/ThemeProvider";
-import { FaFacebook , FaWhatsapp } from "react-icons/fa";
+import { FaFacebook, FaWhatsapp } from "react-icons/fa";
 import { CiYoutube } from "react-icons/ci";
 import { TiSocialLinkedinCircular } from "react-icons/ti";
-
+import { Link } from "react-router-dom";
 
 export default function Main() {
-  const {
-    lang,
-    mobileMenuOpen,
-    setMobileMenuOpen,
-  } = useTheme();
-
+  const { lang, mobileMenuOpen, setMobileMenuOpen } = useTheme();
+  const [news, setNews] = useState([]);
   const [data, setData] = useState(null);
-console.log(process.env.REACT_APP_HOST_URL);
 
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_HOST_URL}/api/page-content/home/${lang}`)
       .then((response) => {
-        setData(response.data)
-
+        setData(response.data);
       })
       .catch((error) => console.error("Error fetching data:", error));
+
+    axios
+      .get(`${process.env.REACT_APP_HOST_URL}/api/post/all`)
+      .then((response) => setNews(response.data))
+      .catch((error) => console.error("Error fetching news data:", error));
   }, [lang]);
 
   if (!data)
@@ -54,7 +53,7 @@ console.log(process.env.REACT_APP_HOST_URL);
   const Hero = getSection("hero");
   const Story = getSection("Our Story & Vision");
   const WhyChoose = getSection("Why Choose Us?");
-  const stats = getSection("stats")
+  const stats = getSection("stats");
 
   const isArabic = lang === "ar";
 
@@ -138,29 +137,6 @@ console.log(process.env.REACT_APP_HOST_URL);
       </motion.div>
     );
   }
-/* 
-  const stats = [
-    {
-      label: lang === "en" ? "Chargers Installed" : "محطة شحن",
-      targetValue: 250,
-      id: "chargers",
-    },
-    {
-      label: lang === "en" ? "Support Availability" : "دعم فني دائم",
-      targetValue: 24,
-      id: "support",
-    },
-    {
-      label: lang === "en" ? "Customer Satisfaction" : "رضا العملاء",
-      targetValue: 98,
-      id: "satisfaction",
-    },
-    {
-      label: lang === "en" ? "Years Experience" : "سنوات خبرة",
-      targetValue: 5,
-      id: "experience",
-    },
-  ]; */
 
   return (
     <div
@@ -252,6 +228,101 @@ console.log(process.env.REACT_APP_HOST_URL);
           </div>
         </section>
 
+        {/* News Section */}
+        <section className="py-12 bg-gray-100 dark:bg-gray-800" id="news">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <span className="text-green-600 dark:text-green-400 font-medium">
+                {lang === "en" ? "LATEST NEWS" : "أحدث الأخبار"}
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mt-2 mb-4">
+                {lang === "en" ? "Stay Updated" : "ابقَ على اطلاع"}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                {lang === "en"
+                  ? "Read the latest updates and news about our company and services."
+                  : "اقرأ آخر التحديثات والأخبار حول شركتنا وخدماتنا."}
+              </p>
+            </div>
+<section className="py-12 bg-gray-100 dark:bg-gray-800" id="news">
+  <div className="max-w-6xl mx-auto px-4">
+ 
+
+    {news.length === 0 ? (
+      <div className="text-center py-12 text-gray-600 dark:text-gray-400">
+        {lang === "en"
+          ? "No news available at the moment."
+          : "لا توجد أخبار متاحة في الوقت الحالي."}
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
+        {news.slice(0, 3).map((newsItem) => (
+          <motion.div
+            key={newsItem._id}
+            className="bg-white dark:bg-gray-700 rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="h-48 overflow-hidden">
+              <img
+                src={newsItem.imageUrl}
+                alt={newsItem.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-6">
+              <div className="text-sm text-green-600 dark:text-green-400 mb-2">
+                {new Date(newsItem.publishedDate).toLocaleDateString(
+                  lang === "en" ? "en-US" : "ar-EG",
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }
+                )}
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
+                <Link
+                  to={`post/${newsItem._id}`}
+                  className="hover:text-green-600 dark:hover:text-green-400"
+                >
+                  {newsItem.title}
+                </Link>
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                {newsItem.body}
+              </p>
+              <Link
+                to={`post/${newsItem._id}`}
+                className="inline-flex items-center text-green-600 dark:text-green-400 hover:underline"
+              >
+                {lang === "en" ? "Read more" : "اقرأ المزيد"}
+                <FiChevronRight className="ml-1" />
+              </Link>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    )}
+    {news.length > 3 && (
+      <div className="text-center py-4">
+        <Link
+          to="/news"
+          className="inline-flex items-center text-green-600 dark:text-green-400 hover:underline"
+        >
+          {lang === "en" ? "View All News" : "عرض جميع الأخبار"}
+          <FiChevronRight className="ml-1" />
+        </Link>
+      </div>
+    )}
+  </div>
+</section>
+          </div>
+        </section>
+
         {/* Services Section */}
         <section
           id="services"
@@ -293,7 +364,6 @@ console.log(process.env.REACT_APP_HOST_URL);
                     <p className="text-gray-600 dark:text-gray-300 mb-6">
                       {service.desc}
                     </p>
-                    
                   </div>
                 </motion.div>
               ))}
@@ -393,7 +463,6 @@ console.log(process.env.REACT_APP_HOST_URL);
               <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-700 p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600">
                 <div className="flex items-center gap-3">
                   <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-full">
-                    {/* Icon */}
                     <span
                       role="img"
                       aria-label="clock"
@@ -551,58 +620,59 @@ console.log(process.env.REACT_APP_HOST_URL);
                 </div>
               </div>
 
-             <motion.div
-                             className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md"
-                             initial={{ x: -50, opacity: 0 }}
-                             whileInView={{ x: 0, opacity: 1 }}
-                             transition={{ duration: 0.5, delay: 0.1 }}
-                           >
-                             <h4 className="font-medium text-xl dark:text-white mb-4">
-                               {lang === "en" ? "Follow Us" : "تابعنا"}
-                             </h4>
-                             <div className="flex gap-4">
-                               {[
-                                 {
-                                   icon: <FaFacebook size={18} />,
-                                   name: "Facebook",
-                                   href: "https://www.facebook.com/EVSolutionJo",
-                                 },
-                                 {
-                                   icon: <CiYoutube size={18} />,
-                                   name: "YouTube",
-                                   href: "https://www.youtube.com/@EVSolutionJo",
-                                 },
-                                 {
-                                   icon: <FiInstagram size={18} />,
-                                   name: "Instagram",
-                                   href: "https://www.instagram.com/EVSolutionJo",
-                                 },
-                                 {
-                                   icon: <FaWhatsapp size={18} />,
-                                   name: "WhatsApp",
-                                   href: "https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0",
-                                 },{
-                                   icon: <TiSocialLinkedinCircular size={18} />,
-                                   name: "LinkedIn",
-                                   href: "https://www.linkedin.com/company/evsolutionjo",
-                                 }
-                               ].map((social) => (
-                                 <motion.a
-                                   key={social.name}
-                                   href={social.href}
-                                   target="_blank"
-                                   rel="noopener noreferrer"
-                                   className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center shadow hover:shadow-lg transition hover:bg-green-100 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400"
-                                   aria-label={social.name}
-                                   whileHover={{ y: -3 }}
-                                 >
-                                   <span className="text-gray-700 dark:text-gray-300">
-                                     {social.icon}
-                                   </span>
-                                 </motion.a>
-                               ))}
-                             </div>
-                           </motion.div>
+              <motion.div
+                className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md"
+                initial={{ x: -50, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <h4 className="font-medium text-xl dark:text-white mb-4">
+                  {lang === "en" ? "Follow Us" : "تابعنا"}
+                </h4>
+                <div className="flex gap-4">
+                  {[
+                    {
+                      icon: <FaFacebook size={18} />,
+                      name: "Facebook",
+                      href: "https://www.facebook.com/EVSolutionJo",
+                    },
+                    {
+                      icon: <CiYoutube size={18} />,
+                      name: "YouTube",
+                      href: "https://www.youtube.com/@EVSolutionJo",
+                    },
+                    {
+                      icon: <FiInstagram size={18} />,
+                      name: "Instagram",
+                      href: "https://www.instagram.com/EVSolutionJo",
+                    },
+                    {
+                      icon: <FaWhatsapp size={18} />,
+                      name: "WhatsApp",
+                      href: "https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0",
+                    },
+                    {
+                      icon: <TiSocialLinkedinCircular size={18} />,
+                      name: "LinkedIn",
+                      href: "https://www.linkedin.com/company/evsolutionjo",
+                    },
+                  ].map((social) => (
+                    <motion.a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center shadow hover:shadow-lg transition hover:bg-green-100 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400"
+                      aria-label={social.name}
+                      whileHover={{ y: -3 }}
+                    >
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {social.icon}
+                      </span>
+                    </motion.a>
+                  ))}
+                </div>
+              </motion.div>
             </div>
 
             <form className="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg space-y-6">
