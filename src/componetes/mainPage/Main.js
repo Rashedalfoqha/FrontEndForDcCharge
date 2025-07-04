@@ -1,51 +1,76 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Navbar from "../Navbar";
-import MapSection from "./MapSection";
 import { FiChevronRight, FiInstagram } from "react-icons/fi";
-import Footer from "../Footer";
-import { useTheme } from "../context/ThemeProvider";
 import { FaFacebook, FaWhatsapp } from "react-icons/fa";
 import { CiYoutube } from "react-icons/ci";
 import { TiSocialLinkedinCircular } from "react-icons/ti";
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/ThemeProvider";
+
+// Lazy load heavy components
+const MapSection = lazy(() => import("./MapSection"));
+const Footer = lazy(() => import("../Footer"));
 
 export default function Main() {
   const { lang, mobileMenuOpen, setMobileMenuOpen } = useTheme();
   const [news, setNews] = useState([]);
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.REACT_APP_HOST_URL}/api/page-content/home/${lang}`)
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [pageData, newsData] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_HOST_URL}/api/page-content/home/${lang}`),
+          axios.get(`${process.env.REACT_APP_HOST_URL}/api/post/all`)
+        ]);
+        
+        setData(pageData.data);
+        setNews(newsData.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    axios
-      .get(`${process.env.REACT_APP_HOST_URL}/api/post/all`)
-      .then((response) => setNews(response.data))
-      .catch((error) => console.error("Error fetching news data:", error));
+    fetchData();
   }, [lang]);
 
-  if (!data)
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="space-y-4">
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="w-72 h-80 bg-gray-200 rounded-2xl animate-pulse"
+                className="w-72 h-80 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
               ></div>
             ))}
           </div>
-          <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto animate-pulse"></div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto animate-pulse"></div>
         </div>
       </div>
     );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-medium text-gray-800 dark:text-white">
+            {lang === "en" 
+              ? "Failed to load data. Please try again later." 
+              : "فشل تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا."}
+          </h2>
+        </div>
+      </div>
+    );
+  }
 
   const { sections } = data;
   const getSection = (id) => sections.find((section) => section.id === id);
@@ -59,49 +84,43 @@ export default function Main() {
 
   const services = [
     {
-      title:
-        lang === "en"
-          ? "Home Charging Installation"
-          : "تركيب محطات الشحن المنزلية",
+      title: isArabic ? "تركيب محطات الشحن المنزلية" : "Home Charging Installation",
       icon: "🏠",
-      desc:
-        lang === "en"
-          ? "Professional installation of Level 2 chargers for residential properties"
-          : "تركيب محطات الشحن المنزلية من المستوى الثاني",
+      desc: isArabic 
+        ? "تركيب محطات الشحن المنزلية من المستوى الثاني" 
+        : "Professional installation of Level 2 chargers for residential properties",
     },
     {
-      title: lang === "en" ? "Commercial Solutions" : "حلول تجارية",
+      title: isArabic ? "حلول تجارية" : "Commercial Solutions",
       icon: "🏢",
-      desc:
-        lang === "en"
-          ? "Custom EV charging solutions for businesses and public spaces"
-          : "حلول شحن المركبات الكهربائية المخصصة للشركات والأماكن العامة",
+      desc: isArabic 
+        ? "حلول شحن المركبات الكهربائية المخصصة للشركات والأماكن العامة" 
+        : "Custom EV charging solutions for businesses and public spaces",
     },
     {
-      title: lang === "en" ? "Maintenance & Support" : "الصيانة والدعم",
+      title: isArabic ? "الصيانة والدعم" : "Maintenance & Support",
       icon: "🔧",
-      desc:
-        lang === "en"
-          ? "24/7 monitoring and maintenance services for your charging stations"
-          : "خدمات المراقبة والصيانة على مدار الساعة لمحطات الشحن الخاصة بك",
+      desc: isArabic 
+        ? "خدمات المراقبة والصيانة على مدار الساعة لمحطات الشحن الخاصة بك" 
+        : "24/7 monitoring and maintenance services for your charging stations",
     },
   ];
 
   const features = [
     {
-      title: lang === "en" ? "Certified Technicians" : "فنيون معتمدون",
+      title: isArabic ? "فنيون معتمدون" : "Certified Technicians",
       icon: "✅",
     },
     {
-      title: lang === "en" ? "24/7 Support" : "دعم على مدار الساعة",
+      title: isArabic ? "دعم على مدار الساعة" : "24/7 Support",
       icon: "🕒",
     },
     {
-      title: lang === "en" ? "Competitive Pricing" : "أسعار تنافسية",
+      title: isArabic ? "أسعار تنافسية" : "Competitive Pricing",
       icon: "💲",
     },
     {
-      title: lang === "en" ? "Warranty Included" : "ضمان شامل",
+      title: isArabic ? "ضمان شامل" : "Warranty Included",
       icon: "🛡️",
     },
   ];
@@ -181,7 +200,7 @@ export default function Main() {
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {lang === "en" ? "Our Services" : "خدماتنا"}
+                    {isArabic ? "خدماتنا" : "Our Services"}
                   </motion.a>
                 </div>
               </div>
@@ -191,6 +210,8 @@ export default function Main() {
                   alt="EV Charging Station"
                   className="w-full h-auto rounded-3xl shadow-2xl object-cover border-8 border-white dark:border-gray-800"
                   loading="lazy"
+                  width="600"
+                  height="400"
                 />
                 <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
@@ -204,7 +225,7 @@ export default function Main() {
                       </span>
                     </div>
                     <span className="text-sm font-medium">
-                      {lang === "en" ? "50+ Locations" : "50+ موقع"}
+                      {isArabic ? "50+ موقع" : "50+ Locations"}
                     </span>
                   </div>
                 </div>
@@ -233,93 +254,90 @@ export default function Main() {
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-16">
               <span className="text-green-600 dark:text-green-400 font-medium">
-                {lang === "en" ? "LATEST NEWS" : "أحدث الأخبار"}
+                {isArabic ? "أحدث الأخبار" : "LATEST NEWS"}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mt-2 mb-4">
-                {lang === "en" ? "Stay Updated" : "ابقَ على اطلاع"}
+                {isArabic ? "ابقَ على اطلاع" : "Stay Updated"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                {lang === "en"
-                  ? "Read the latest updates and news about our company and services."
-                  : "اقرأ آخر التحديثات والأخبار حول شركتنا وخدماتنا."}
+                {isArabic
+                  ? "اقرأ آخر التحديثات والأخبار حول شركتنا وخدماتنا."
+                  : "Read the latest updates and news about our company and services."}
               </p>
             </div>
-<section className="py-12 bg-gray-100 dark:bg-gray-800" id="news">
-  <div className="max-w-6xl mx-auto px-4">
- 
 
-    {news.length === 0 ? (
-      <div className="text-center py-12 text-gray-600 dark:text-gray-400">
-        {lang === "en"
-          ? "No news available at the moment."
-          : "لا توجد أخبار متاحة في الوقت الحالي."}
-      </div>
-    ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
-        {news.slice(0, 3).map((newsItem) => (
-          <motion.div
-            key={newsItem._id}
-            className="bg-white dark:bg-gray-700 rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="h-48 overflow-hidden">
-              <img
-                src={newsItem.imageUrl}
-                alt={newsItem.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div className="p-6">
-              <div className="text-sm text-green-600 dark:text-green-400 mb-2">
-                {new Date(newsItem.publishedDate).toLocaleDateString(
-                  lang === "en" ? "en-US" : "ar-EG",
-                  {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  }
-                )}
+            {news.length === 0 ? (
+              <div className="text-center py-12 text-gray-600 dark:text-gray-400">
+                {isArabic
+                  ? "لا توجد أخبار متاحة في الوقت الحالي."
+                  : "No news available at the moment."}
               </div>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
+                {news.slice(0, 3).map((newsItem) => (
+                  <motion.div
+                    key={newsItem._id}
+                    className="bg-white dark:bg-gray-700 rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className="h-48 overflow-hidden">
+                      <img
+                        src={newsItem.imageUrl}
+                        alt={newsItem.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        width="400"
+                        height="200"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <div className="text-sm text-green-600 dark:text-green-400 mb-2">
+                        {new Date(newsItem.publishedDate).toLocaleDateString(
+                          isArabic ? "ar-EG" : "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
+                        <Link
+                          to={`post/${newsItem._id}`}
+                          className="hover:text-green-600 dark:hover:text-green-400"
+                        >
+                          {newsItem.title}
+                        </Link>
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                        {newsItem.body}
+                      </p>
+                      <Link
+                        to={`post/${newsItem._id}`}
+                        className="inline-flex items-center text-green-600 dark:text-green-400 hover:underline"
+                      >
+                        {isArabic ? "اقرأ المزيد" : "Read more"}
+                        <FiChevronRight className="ml-1" />
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+            {news.length > 3 && (
+              <div className="text-center py-4">
                 <Link
-                  to={`post/${newsItem._id}`}
-                  className="hover:text-green-600 dark:hover:text-green-400"
+                  to="/news"
+                  className="inline-flex items-center text-green-600 dark:text-green-400 hover:underline"
                 >
-                  {newsItem.title}
+                  {isArabic ? "عرض جميع الأخبار" : "View All News"}
+                  <FiChevronRight className="ml-1" />
                 </Link>
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-                {newsItem.body}
-              </p>
-              <Link
-                to={`post/${newsItem._id}`}
-                className="inline-flex items-center text-green-600 dark:text-green-400 hover:underline"
-              >
-                {lang === "en" ? "Read more" : "اقرأ المزيد"}
-                <FiChevronRight className="ml-1" />
-              </Link>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    )}
-    {news.length > 3 && (
-      <div className="text-center py-4">
-        <Link
-          to="/news"
-          className="inline-flex items-center text-green-600 dark:text-green-400 hover:underline"
-        >
-          {lang === "en" ? "View All News" : "عرض جميع الأخبار"}
-          <FiChevronRight className="ml-1" />
-        </Link>
-      </div>
-    )}
-  </div>
-</section>
+              </div>
+            )}
           </div>
         </section>
 
@@ -331,17 +349,17 @@ export default function Main() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <span className="text-green-600 dark:text-green-400 font-medium">
-                {lang === "en" ? "OUR SERVICES" : "خدماتنا"}
+                {isArabic ? "خدماتنا" : "OUR SERVICES"}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mt-2 mb-4">
-                {lang === "en"
-                  ? "Comprehensive EV Solutions"
-                  : "حلول شاملة للسيارات الكهربائية"}
+                {isArabic
+                  ? "حلول شاملة للسيارات الكهربائية"
+                  : "Comprehensive EV Solutions"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                {lang === "en"
-                  ? "From residential installations to commercial charging networks, we cover all your EV charging needs"
-                  : "من التركيبات المنزلية إلى شبكات الشحن التجارية، نحن نغطي جميع احتياجات شحن سيارتك الكهربائية"}
+                {isArabic
+                  ? "من التركيبات المنزلية إلى شبكات الشحن التجارية، نحن نغطي جميع احتياجات شحن سيارتك الكهربائية"
+                  : "From residential installations to commercial charging networks, we cover all your EV charging needs"}
               </p>
             </div>
 
@@ -386,20 +404,22 @@ export default function Main() {
                 alt="Our Story"
                 className="rounded-2xl shadow-xl w-full h-auto object-cover"
                 loading="lazy"
+                width="600"
+                height="400"
               />
               <div className="absolute -bottom-6 -right-6 bg-green-600 dark:bg-green-500 text-white p-6 rounded-xl shadow-lg">
                 <div className="text-3xl font-bold">5+</div>
                 <div className="text-sm">
-                  {lang === "en" ? "Years Experience" : "سنوات خبرة"}
+                  {isArabic ? "سنوات خبرة" : "Years Experience"}
                 </div>
               </div>
             </div>
             <div>
               <span className="text-green-600 dark:text-green-400 font-medium">
-                {lang === "en" ? "OUR STORY" : "قصتنا"}
+                {isArabic ? "قصتنا" : "OUR STORY"}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mt-2 mb-6">
-                {lang === "en" ? "Our Story & Vision" : "قصتنا ورؤيتنا"}
+                {isArabic ? "قصتنا ورؤيتنا" : "Our Story & Vision"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg font-medium leading-relaxed">
                 {Story.heading}
@@ -433,10 +453,10 @@ export default function Main() {
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <span className="text-green-600 dark:text-green-400 font-medium">
-                {lang === "en" ? "WHY CHOOSE US" : "لماذا نحن"}
+                {isArabic ? "لماذا نحن" : "WHY CHOOSE US"}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mt-2 mb-6">
-                {lang === "en" ? "Why Choose Us?" : "لماذا تختارنا؟"}
+                {isArabic ? "لماذا تختارنا؟" : "Why Choose Us?"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6 whitespace-pre-line leading-relaxed">
                 {WhyChoose.content}
@@ -459,6 +479,8 @@ export default function Main() {
                 alt="Why Choose Us"
                 className="rounded-2xl shadow-xl w-full h-auto object-cover"
                 loading="lazy"
+                width="600"
+                height="400"
               />
               <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-700 p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600">
                 <div className="flex items-center gap-3">
@@ -473,7 +495,7 @@ export default function Main() {
                   </div>
                   <div>
                     <div className="font-medium">
-                      {lang === "en" ? "Fast Installation" : "تركيب سريع"}
+                      {isArabic ? "تركيب سريع" : "Fast Installation"}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       24-48 hours
@@ -490,10 +512,10 @@ export default function Main() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <span className="text-green-600 dark:text-green-400 font-medium">
-                {lang === "en" ? "TESTIMONIALS" : "آراء العملاء"}
+                {isArabic ? "آراء العملاء" : "TESTIMONIALS"}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mt-2 mb-4">
-                {lang === "en" ? "What Our Clients Say" : "ماذا يقول عملاؤنا"}
+                {isArabic ? "ماذا يقول عملاؤنا" : "What Our Clients Say"}
               </h2>
             </div>
 
@@ -513,18 +535,18 @@ export default function Main() {
                     ))}
                   </div>
                   <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
-                    {lang === "en"
-                      ? "The installation was quick and professional. My EV charger works perfectly and their support team is always available."
-                      : "كان التركيب سريعًا واحترافيًا. يعمل شاحن سيارتي الكهربائية بشكل مثالي وفريق الدعم الخاص بهم متاح دائمًا."}
+                    {isArabic
+                      ? "كان التركيب سريعًا واحترافيًا. يعمل شاحن سيارتي الكهربائية بشكل مثالي وفريق الدعم الخاص بهم متاح دائمًا."
+                      : "The installation was quick and professional. My EV charger works perfectly and their support team is always available."}
                   </p>
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600"></div>
                     <div>
                       <div className="font-medium dark:text-white">
-                        {lang === "en" ? `Client ${i}` : `عميل ${i}`}
+                        {isArabic ? `عميل ${i}` : `Client ${i}`}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {lang === "en" ? "Amman, Jordan" : "عمان، الأردن"}
+                        {isArabic ? "عمان، الأردن" : "Amman, Jordan"}
                       </div>
                     </div>
                   </div>
@@ -545,15 +567,15 @@ export default function Main() {
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-6">
               <span className="text-green-600 dark:text-green-400 font-medium">
-                {lang === "en" ? "CONTACT US" : "اتصل بنا"}
+                {isArabic ? "اتصل بنا" : "CONTACT US"}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">
-                {lang === "en" ? "Get In Touch" : "ابقى على تواصل"}
+                {isArabic ? "ابقى على تواصل" : "Get In Touch"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 text-lg">
-                {lang === "en"
-                  ? "Our dedicated team is here to assist you and answer your inquiries 24/7 through all channels."
-                  : "فريقنا جاهز دائماً لمساعدتك والإجابة على استفساراتك على مدار الساعة."}
+                {isArabic
+                  ? "فريقنا جاهز دائماً لمساعدتك والإجابة على استفساراتك على مدار الساعة."
+                  : "Our dedicated team is here to assist you and answer your inquiries 24/7 through all channels."}
               </p>
 
               <div className="space-y-4 mt-8">
@@ -569,7 +591,7 @@ export default function Main() {
                   </div>
                   <div>
                     <h4 className="font-medium dark:text-white">
-                      {lang === "en" ? "Phone" : "الهاتف"}
+                      {isArabic ? "الهاتف" : "Phone"}
                     </h4>
                     <p className="text-gray-600 dark:text-gray-300">
                       +962-79-0085-686
@@ -589,7 +611,7 @@ export default function Main() {
                   </div>
                   <div>
                     <h4 className="font-medium dark:text-white">
-                      {lang === "en" ? "Email" : "البريد الإلكتروني"}
+                      {isArabic ? "البريد الإلكتروني" : "Email"}
                     </h4>
                     <p className="text-gray-600 dark:text-gray-300">
                       info@evsjo.com
@@ -609,12 +631,12 @@ export default function Main() {
                   </div>
                   <div>
                     <h4 className="font-medium dark:text-white">
-                      {lang === "en" ? "Working Hours" : "ساعات العمل"}
+                      {isArabic ? "ساعات العمل" : "Working Hours"}
                     </h4>
                     <p className="text-gray-600 dark:text-gray-300">
-                      {lang === "en"
-                        ? "Sunday - Thursday: 8AM - 6PM"
-                        : "الأحد - الخميس: 8 صباحًا - 6 مساءً"}
+                      {isArabic
+                        ? "الأحد - الخميس: 8 صباحًا - 6 مساءً"
+                        : "Sunday - Thursday: 8AM - 6PM"}
                     </p>
                   </div>
                 </div>
@@ -627,7 +649,7 @@ export default function Main() {
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
                 <h4 className="font-medium text-xl dark:text-white mb-4">
-                  {lang === "en" ? "Follow Us" : "تابعنا"}
+                  {isArabic ? "تابعنا" : "Follow Us"}
                 </h4>
                 <div className="flex gap-4">
                   {[
@@ -677,7 +699,7 @@ export default function Main() {
 
             <form className="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg space-y-6">
               <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
-                {lang === "en" ? "Send Us a Message" : "أرسل لنا رسالة"}
+                {isArabic ? "أرسل لنا رسالة" : "Send Us a Message"}
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -686,7 +708,7 @@ export default function Main() {
                     htmlFor="name"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                   >
-                    {lang === "en" ? "Name" : "الاسم"}
+                    {isArabic ? "الاسم" : "Name"}
                   </label>
                   <input
                     type="text"
@@ -701,7 +723,7 @@ export default function Main() {
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                   >
-                    {lang === "en" ? "Email" : "البريد الإلكتروني"}
+                    {isArabic ? "البريد الإلكتروني" : "Email"}
                   </label>
                   <input
                     type="email"
@@ -717,7 +739,7 @@ export default function Main() {
                   htmlFor="subject"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  {lang === "en" ? "Subject" : "الموضوع"}
+                  {isArabic ? "الموضوع" : "Subject"}
                 </label>
                 <input
                   type="text"
@@ -732,7 +754,7 @@ export default function Main() {
                   htmlFor="message"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  {lang === "en" ? "Message" : "الرسالة"}
+                  {isArabic ? "الرسالة" : "Message"}
                 </label>
                 <textarea
                   id="message"
@@ -748,7 +770,7 @@ export default function Main() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {lang === "en" ? "Send Message" : "إرسال الرسالة"}
+                {isArabic ? "إرسال الرسالة" : "Send Message"}
                 <FiChevronRight />
               </motion.button>
             </form>
@@ -758,12 +780,16 @@ export default function Main() {
         {/* Map Section */}
         <section className="h-96 w-full bg-gray-300 dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg my-12">
           <div className="h-full w-full">
-            <MapSection lang={lang} />
+            <Suspense fallback={<div className="h-full w-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">Loading map...</div>}>
+              <MapSection lang={lang} />
+            </Suspense>
           </div>
         </section>
       </main>
 
-      <Footer lang={lang} />
+      <Suspense fallback={null}>
+        <Footer lang={lang} />
+      </Suspense>
     </div>
   );
 }
