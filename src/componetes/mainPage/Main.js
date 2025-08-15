@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy, Suspense } from "react";
+import React, { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Navbar from "../Navbar";
@@ -9,9 +9,110 @@ import { TiSocialLinkedinCircular } from "react-icons/ti";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeProvider";
 
-// Lazy load only the MapSection and Footer
+// Lazy load components
 const MapSection = lazy(() => import("./MapSection"));
 const Footer = lazy(() => import("../Footer"));
+
+// Memoized components
+const AnimatedCounter = React.memo(({ targetValue, label }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCount((prevCount) => {
+        if (prevCount < targetValue) {
+          return prevCount + 1;
+        } else {
+          clearInterval(timer);
+          return targetValue;
+        }
+      });
+    }, 20);
+    return () => clearInterval(timer);
+  }, [targetValue]);
+
+  return (
+    <motion.div
+      className="p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
+      <div className="text-4xl font-bold mb-2">
+        <motion.span key={count}>{count}+</motion.span>
+      </div>
+      <div className="text-sm opacity-80">{label}</div>
+    </motion.div>
+  );
+});
+
+const TestimonialCard = React.memo(({ i, isArabic }) => (
+  <motion.div
+    className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-md"
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5, delay: i * 0.1 }}
+  >
+    <div className="flex items-center gap-2 text-yellow-400 mb-4">
+      {[...Array(5)].map((_, i) => (
+        <span key={i}>★</span>
+      ))}
+    </div>
+    <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
+      {isArabic
+        ? "كان التركيب سريعًا واحترافيًا. يعمل شاحن سيارتي الكهربائية بشكل مثالي وفريق الدعم الخاص بهم متاح دائمًا."
+        : "The installation was quick and professional. My EV charger works perfectly and their support team is always available."}
+    </p>
+    <div className="flex items-center gap-4">
+      <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+      <div>
+        <div className="font-medium dark:text-white">
+          {isArabic ? `عميل ${i}` : `Client ${i}`}
+        </div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          {isArabic ? "عمان، الأردن" : "Amman, Jordan"}
+        </div>
+      </div>
+    </div>
+  </motion.div>
+));
+
+const ServiceCard = React.memo(({ service, i, isArabic }) => (
+  <motion.div
+    className="bg-white dark:bg-gray-700 rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden"
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.5, delay: i * 0.1 }}
+    whileHover={{ y: -10 }}
+  >
+    <div className="p-8">
+      <div className="text-5xl mb-6">{service.icon}</div>
+      <h3 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">
+        {service.title}
+      </h3>
+      <p className="text-gray-600 dark:text-gray-300 mb-6">
+        {service.desc}
+      </p>
+    </div>
+  </motion.div>
+));
+
+const SocialIcon = React.memo(({ social }) => (
+  <motion.a
+    href={social.href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center shadow hover:shadow-lg transition hover:bg-green-100 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400"
+    aria-label={social.name}
+    whileHover={{ y: -3 }}
+  >
+    <span className="text-gray-700 dark:text-gray-300">
+      {social.icon}
+    </span>
+  </motion.a>
+));
 
 export default function Main() {
   const { lang, mobileMenuOpen, setMobileMenuOpen } = useTheme();
@@ -40,49 +141,23 @@ export default function Main() {
     fetchData();
   }, [lang]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="space-y-4">
-          <div className="flex flex-wrap justify-center gap-4">
-            {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="w-72 h-80 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
-              ></div>
-            ))}
-          </div>
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto animate-pulse"></div>
-        </div>
-      </div>
-    );
-  }
+  const memoizedData = useMemo(() => {
+    if (!data) return null;
+    
+    const { sections } = data;
+    const getSection = (id) => sections.find((section) => section.id === id);
 
-  if (!data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-medium text-gray-800 dark:text-white">
-            {lang === "en" 
-              ? "Failed to load data. Please try again later." 
-              : "فشل تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا."}
-          </h2>
-        </div>
-      </div>
-    );
-  }
-
-  const { sections } = data;
-  const getSection = (id) => sections.find((section) => section.id === id);
-
-  const Hero = getSection("hero");
-  const Story = getSection("Our Story & Vision");
-  const WhyChoose = getSection("Why Choose Us?");
-  const stats = getSection("stats");
+    return {
+      Hero: getSection("hero"),
+      Story: getSection("Our Story & Vision"),
+      WhyChoose: getSection("Why Choose Us?"),
+      stats: getSection("stats")
+    };
+  }, [data]);
 
   const isArabic = lang === "ar";
 
-  const services = [
+  const services = useMemo(() => [
     {
       title: isArabic ? "تركيب محطات الشحن المنزلية" : "Home Charging Installation",
       icon: "🏠",
@@ -104,9 +179,9 @@ export default function Main() {
         ? "خدمات المراقبة والصيانة على مدار الساعة لمحطات الشحن الخاصة بك" 
         : "24/7 monitoring and maintenance services for your charging stations",
     },
-  ];
+  ], [isArabic]);
 
-  const features = [
+  const features = useMemo(() => [
     {
       title: isArabic ? "فنيون معتمدون" : "Certified Technicians",
       icon: "✅",
@@ -123,39 +198,69 @@ export default function Main() {
       title: isArabic ? "ضمان شامل" : "Warranty Included",
       icon: "🛡️",
     },
-  ];
+  ], [isArabic]);
 
-  function AnimatedCounter({ targetValue, label }) {
-    const [count, setCount] = useState(0);
+  const socialLinks = useMemo(() => [
+    {
+      icon: <FaFacebook size={18} />,
+      name: "Facebook",
+      href: "https://www.facebook.com/EVSolutionJo",
+    },
+    {
+      icon: <CiYoutube size={18} />,
+      name: "YouTube",
+      href: "https://www.youtube.com/@EVSolutionJo",
+    },
+    {
+      icon: <FiInstagram size={18} />,
+      name: "Instagram",
+      href: "https://www.instagram.com/EVSolutionJo",
+    },
+    {
+      icon: <FaWhatsapp size={18} />,
+      name: "WhatsApp",
+      href: "https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0",
+    },
+    {
+      icon: <TiSocialLinkedinCircular size={18} />,
+      name: "LinkedIn",
+      href: "https://www.linkedin.com/company/evsolutionjo",
+    },
+  ], []);
 
-    useEffect(() => {
-      const timer = setInterval(() => {
-        setCount((prevCount) => {
-          if (prevCount < targetValue) {
-            return prevCount + 1;
-          } else {
-            clearInterval(timer);
-            return targetValue;
-          }
-        });
-      }, 20);
-      return () => clearInterval(timer);
-    }, [targetValue]);
-
+  if (loading) {
     return (
-      <motion.div
-        className="p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        <div className="text-4xl font-bold mb-2">
-          <motion.span key={count}>{count}+</motion.span>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="space-y-4">
+          <div className="flex flex-wrap justify-center gap-4">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="w-72 h-80 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
+              ></div>
+            ))}
+          </div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto animate-pulse"></div>
         </div>
-        <div className="text-sm opacity-80">{label}</div>
-      </motion.div>
+      </div>
     );
   }
+
+  if (!memoizedData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-medium text-gray-800 dark:text-white">
+            {isArabic 
+              ? "فشل تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا." 
+              : "Failed to load data. Please try again later."}
+          </h2>
+        </div>
+      </div>
+    );
+  }
+
+  const { Hero, Story, WhyChoose, stats } = memoizedData;
 
   return (
     <div
@@ -365,25 +470,7 @@ export default function Main() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {services.map((service, i) => (
-                <motion.div
-                  key={i}
-                  className="bg-white dark:bg-gray-700 rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  whileHover={{ y: -10 }}
-                >
-                  <div className="p-8">
-                    <div className="text-5xl mb-6">{service.icon}</div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">
-                      {service.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-6">
-                      {service.desc}
-                    </p>
-                  </div>
-                </motion.div>
+                <ServiceCard key={i} service={service} i={i} isArabic={isArabic} />
               ))}
             </div>
           </div>
@@ -521,36 +608,7 @@ export default function Main() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
-                <motion.div
-                  key={i}
-                  className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-md"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                >
-                  <div className="flex items-center gap-2 text-yellow-400 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i}>★</span>
-                    ))}
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
-                    {isArabic
-                      ? "كان التركيب سريعًا واحترافيًا. يعمل شاحن سيارتي الكهربائية بشكل مثالي وفريق الدعم الخاص بهم متاح دائمًا."
-                      : "The installation was quick and professional. My EV charger works perfectly and their support team is always available."}
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-                    <div>
-                      <div className="font-medium dark:text-white">
-                        {isArabic ? `عميل ${i}` : `Client ${i}`}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {isArabic ? "عمان، الأردن" : "Amman, Jordan"}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+                <TestimonialCard key={i} i={i} isArabic={isArabic} />
               ))}
             </div>
           </div>
@@ -652,47 +710,8 @@ export default function Main() {
                   {isArabic ? "تابعنا" : "Follow Us"}
                 </h4>
                 <div className="flex gap-4">
-                  {[
-
-                    {
-                      icon: <FaFacebook size={18} />,
-                      name: "Facebook",
-                      href: "https://www.facebook.com/EVSolutionJo",
-                    },
-                    {
-                      icon: <CiYoutube size={18} />,
-                      name: "YouTube",
-                      href: "https://www.youtube.com/@EVSolutionJo",
-                    },
-                    {
-                      icon: <FiInstagram size={18} />,
-                      name: "Instagram",
-                      href: "https://www.instagram.com/EVSolutionJo",
-                    },
-                    {
-                      icon: <FaWhatsapp size={18} />,
-                      name: "WhatsApp",
-                      href: "https://api.whatsapp.com/send/?phone=962790085686&text&type=phone_number&app_absent=0",
-                    },
-                    {
-                      icon: <TiSocialLinkedinCircular size={18} />,
-                      name: "LinkedIn",
-                      href: "https://www.linkedin.com/company/evsolutionjo",
-                    },
-                  ].map((social) => (
-                    <motion.a
-                      key={social.name}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center shadow hover:shadow-lg transition hover:bg-green-100 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400"
-                      aria-label={social.name}
-                      whileHover={{ y: -3 }}
-                    >
-                      <span className="text-gray-700 dark:text-gray-300">
-                        {social.icon}
-                      </span>
-                    </motion.a>
+                  {socialLinks.map((social) => (
+                    <SocialIcon key={social.name} social={social} />
                   ))}
                 </div>
               </motion.div>
