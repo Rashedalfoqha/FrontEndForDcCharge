@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./componetes/context/ThemeProvider";
 
@@ -27,32 +27,30 @@ const EVLandingPage = lazy(() =>
 function App() {
   return (
     <ThemeProvider>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path="/landing" element={<EVLandingPage />} />
-          <Route path="/" element={<Main />} />
-          <Route path="/about" element={<About />} />
-          <Route
-            path="/exp-consulting-services-for-charging-stations"
-            element={<Consulting />}
-          />
-          <Route path="/products-and-services" element={<ProductsServices />} />
-          <Route path="/partners-customers" element={<Partner />} />
-          <Route path="/ac-chargers" element={<AcCharge />} />
-          <Route path="/dc-chargers" element={<DcCharge />} />
-          <Route
-            path="/professional-services"
-            element={<ProfessionalServices />}
-          />
-          <Route
-            path="/chargers-repairing-services"
-            element={<ChargersRepairingServices />}
-          />
-          <Route path="/news" element={<Nesw />} />
-          <Route path="/contact" element={<ContactUS />} />
-          <Route path="/post/:id" element={<NewsDetailsPage />} />
-        </Routes>
-      </Suspense>
+      <Routes>
+        <Route path="/landing" element={<EVLandingPage />} />
+        <Route path="/" element={<Main />} />
+        <Route path="/about" element={<About />} />
+        <Route
+          path="/exp-consulting-services-for-charging-stations"
+          element={<Consulting />}
+        />
+        <Route path="/products-and-services" element={<ProductsServices />} />
+        <Route path="/partners-customers" element={<Partner />} />
+        <Route path="/ac-chargers" element={<AcCharge />} />
+        <Route path="/dc-chargers" element={<DcCharge />} />
+        <Route
+          path="/professional-services"
+          element={<ProfessionalServices />}
+        />
+        <Route
+          path="/chargers-repairing-services"
+          element={<ChargersRepairingServices />}
+        />
+        <Route path="/news" element={<Nesw />} />
+        <Route path="/contact" element={<ContactUS />} />
+        <Route path="/post/:id" element={<NewsDetailsPage />} />
+      </Routes>
     </ThemeProvider>
   );
 }

@@ -9,7 +9,7 @@ import { TiSocialLinkedinCircular } from "react-icons/ti";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeProvider";
 
-// Lazy load heavy components
+// Lazy load only the MapSection and Footer
 const MapSection = lazy(() => import("./MapSection"));
 const Footer = lazy(() => import("../Footer"));
 
@@ -27,7 +27,7 @@ export default function Main() {
           axios.get(`${process.env.REACT_APP_HOST_URL}/api/page-content/home/${lang}`),
           axios.get(`${process.env.REACT_APP_HOST_URL}/api/post/all`)
         ]);
-        
+
         setData(pageData.data);
         setNews(newsData.data);
       } catch (error) {
@@ -653,6 +653,7 @@ export default function Main() {
                 </h4>
                 <div className="flex gap-4">
                   {[
+
                     {
                       icon: <FaFacebook size={18} />,
                       name: "Facebook",
